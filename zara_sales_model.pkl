@@ -1,0 +1,38 @@
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+import joblib
+
+# Sample training data
+data = pd.DataFrame({
+    'Product Category': ['Tops', 'Jeans', 'Dresses', 'Accessories'],
+    'Price': [1500, 2200, 1800, 1200],
+    'Store Location': ['Mumbai', 'Delhi', 'Bangalore', 'Kolkata'],
+    'Season': ['Spring', 'Summer', 'Autumn', 'Winter'],
+    'Promotion': ['Yes', 'No', 'Yes', 'No'],
+    'Sales Volume': [500, 700, 450, 300]
+})
+
+# Features and target
+X = data.drop('Sales Volume', axis=1)
+y = data['Sales Volume']
+
+# Preprocessing and model pipeline
+categorical_cols = ['Product Category', 'Store Location', 'Season', 'Promotion']
+preprocessor = ColumnTransformer(transformers=[
+    ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)
+])
+
+pipeline = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('regressor', RandomForestRegressor(n_estimators=100, random_state=42))
+])
+
+# Train the model
+pipeline.fit(X, y)
+
+# Save the model
+joblib.dump(pipeline, "zara_sales_model.pkl")
+print("Model saved as zara_sales_model.pkl")
